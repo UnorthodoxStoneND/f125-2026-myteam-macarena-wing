@@ -33,11 +33,11 @@ with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:
     for rel,(src,_) in sorted(contents.items()):
         info=zipfile.ZipInfo(rel,(2026,11,22,0,0,0));info.compress_type=zipfile.ZIP_DEFLATED;info.external_attr=0o644<<16
         z.writestr(info,src.read_bytes())
-addon=args.output/(name+'.swoftyaddon');addon.write_bytes(archive.read_bytes())
-checks=[]
-for p in [archive,addon]:
-    checksum=sha256(p.read_bytes()).hexdigest()+'  '+p.name+'\n'
-    p.with_suffix(p.suffix+'.sha256').write_text(checksum,encoding='utf-8');checks.append(checksum)
-(args.output/'SHA256SUMS.txt').write_text(''.join(checks),encoding='utf-8')
+# Retire only the old generated format in this output folder; historical releases stay untouched.
+for old in [args.output/(name+'.swoftyaddon'),args.output/(name+'.swoftyaddon.sha256')]:
+    if old.is_file():old.unlink()
+checksum=sha256(archive.read_bytes()).hexdigest()+'  '+archive.name+'\n'
+archive.with_suffix('.zip.sha256').write_text(checksum,encoding='utf-8')
+(args.output/'SHA256SUMS.txt').write_text(checksum,encoding='utf-8')
 (args.output/'PACKAGE_CONTENTS.json').write_text(json.dumps({k:v[1] for k,v in contents.items()},indent=2)+'\n',encoding='utf-8')
-print(archive);print(addon)
+print(archive)

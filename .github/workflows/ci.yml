@@ -63,5 +63,4 @@ jobs:
           retention-days: 7
           path: |
             dist/*.zip
-            dist/*.swoftyaddon
             dist/SHA256SUMS.txt

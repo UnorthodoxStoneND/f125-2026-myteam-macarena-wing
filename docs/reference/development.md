@@ -28,6 +28,6 @@ python tools/checks/package_check.py
 
 CI compiles once with `python native/build.py --build-only`, then runs `python native/build.py --tests-only` against the shared artifacts. The default command does both. No host test launches F1 25 or writes to its installation.
 
-`source/package.py` requires a passing fixture report for the exact DLL being packaged. It writes a ZIP, identical `.swoftyaddon`, individual checksums and `SHA256SUMS.txt` to `dist/`. `PACKAGE_CONTENTS.json` documents every entry's release purpose outside the installable archive. `--output <directory>` selects another output folder.
+`source/package.py` requires a passing fixture report for the exact DLL being packaged. It writes a ZIP, its checksum and `SHA256SUMS.txt` to `dist/`. `PACKAGE_CONTENTS.json` documents every entry's release purpose outside the installable archive. `--output <directory>` selects another output folder.
 
 Keep compiler outputs, dependency downloads, recordings, session logs, game data and machine-specific paths out of Git. Do not copy SDK headers, tests or build files into the installable archive. Changes to the icon, manifest or runtime require package validation before handoff.

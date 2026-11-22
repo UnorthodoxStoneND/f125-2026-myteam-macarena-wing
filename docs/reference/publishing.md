@@ -5,7 +5,7 @@ Follow the same source-to-release workflow used by F1 Live Telemetry:
 1. Make changes on a branch, run the native tests, package and validate the archive.
 2. Open a PR against main and wait for the repository's checks before merging.
 3. Tag the reviewed main commit with the version from `swofty.json`.
-4. Attach the exact final ZIP, `.swoftyaddon` and `SHA256SUMS.txt` to the GitHub release. Record automated and in-game checks separately.
+4. Attach the exact final ZIP and `SHA256SUMS.txt` to the GitHub release. Record automated and in-game checks separately.
 
 The workflow builds artifacts for review; it does not publish releases or upload to Swofty automatically. Previously handed-over release archives outside this checkout are preserved. A fresh source build may have different binary/archive hashes because compiler/dependency inputs differ; identify the exact final artifact and retain its validation results before publication.
 

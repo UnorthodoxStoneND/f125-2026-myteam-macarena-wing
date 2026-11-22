@@ -21,5 +21,5 @@ with zipfile.ZipFile(archive) as z:
             assert b'c:/users/' not in data and b'c:\\users\\' not in data,name
 for line in (dist/'SHA256SUMS.txt').read_text(encoding='utf-8').splitlines():
     digest,name=line.split('  ',1);assert sha256((dist/name).read_bytes()).hexdigest()==digest
-assert archive.read_bytes()==archive.with_suffix('.swoftyaddon').read_bytes()
+assert not archive.with_suffix('.swoftyaddon').exists(),'GitHub packages must be ZIP-only.'
 print('PASS: explicit package contents, references, PNG, compiled DLL, versions, hashes and private-path checks.')

@@ -1,6 +1,6 @@
 # Installation
 
-Download the ZIP or `.swoftyaddon` from this repository's Releases page and drop it onto Swofty Launcher. Enable **My Team Macarena Wing - Red Bull Style** and restart the game once to load its DLL. Keep your existing livery and performance mods enabled.
+Download the ZIP from this repository's Releases page and drop it onto Swofty Launcher. Enable **My Team Macarena Wing - Red Bull Style** and restart the game once to load its DLL. Keep your existing livery and performance mods enabled.
 
 The current ID is `unorthodoxstonendmodding.myteam-macarena-wing`. If upgrading from the earlier `walker-racing.myteam-macarena-wing` build, disable/remove that entry first. Do not run both. The corrected ID installs separately, so choose your preferred slider value again.
 
