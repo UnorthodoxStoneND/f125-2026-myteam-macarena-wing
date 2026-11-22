@@ -27,9 +27,6 @@
       "steam"
     ]
   },
-  "load_after": [
-    "walker-racing.disney-walker-racing-season-two"
-  ],
   "options": [
     {
       "id": "travel_ms",
