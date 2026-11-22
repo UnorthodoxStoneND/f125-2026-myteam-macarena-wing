@@ -5,11 +5,15 @@
   "version": "0.2.2",
   "author": "UnorthodoxStoneNDmodding",
   "description": "Adds a Red Bull-style Macarena rear-wing animation to 2026 My Team cars, with reverse 160-degree rotation and adjustable visual travel time from 0 to 500 ms. Animation speed can be changed during play without affecting car performance or liveries. Version 1.0.0 will use Swofty bindings once they are implemented.",
+  "license": "MIT",
+  "repository": "https://github.com/UnorthodoxStoneND/f125-2026-myteam-macarena-wing",
+  "icon": "icon.png",
   "kind": [
     "erp",
     "native"
   ],
   "category": "cars",
+  "origin": null,
   "compat": {
     "game": "f1_25",
     "game_builds": [
@@ -23,9 +27,6 @@
       "steam"
     ]
   },
-  "load_after": [
-    "walker-racing.disney-walker-racing-season-two"
-  ],
   "options": [
     {
       "id": "travel_ms",
@@ -46,7 +47,6 @@
       }
     ]
   },
-  "icon": "icon.png",
   "conflicts": [
     {
       "id": "walker-racing.myteam-macarena-wing"

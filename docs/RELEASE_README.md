@@ -12,7 +12,7 @@ Windows, Steam F1 25 build 26566308, official 2026 season content, Swofty Launch
 
 ## Install and adjust
 
-Drop the .swoftyaddon or ZIP onto Swofty Launcher, then enable My Team Macarena Wing - Red Bull Style. This release corrects the addon ID to unorthodoxstonendmodding.myteam-macarena-wing. Disable/remove the old walker-racing.myteam-macarena-wing entry before enabling this one; do not run both. It installs as a separate entry and the previous slider setting is not transferred automatically. The default is 250 ms; choose your preferred value again. Keep your existing livery and performance addons enabled. Restart the game once after installing the updated DLL.
+Drop the ZIP onto Swofty Launcher, then enable My Team Macarena Wing - Red Bull Style.
 
 Visual wing travel (ms) ranges from 0 to 500 in 50 ms steps, default 250. Higher values are slower. Zero removes added smoothing and follows the game's normal render fraction. Use Reset to defaults to select 250 if you already saved another value.
 
