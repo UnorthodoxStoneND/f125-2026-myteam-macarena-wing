@@ -1,0 +1,25 @@
+# Build and release output
+/bin/
+/dist/
+/.verify/
+/.deps/
+/build/
+*.exe
+*.dll
+*.obj
+*.lib
+*.exp
+*.pdb
+*.ilk
+*.swoftyaddon
+*.zip
+*.sha256
+
+# Editor and Python caches
+__pycache__/
+*.py[cod]
+.venv/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,54 @@
+{
+  "vehicle.handling": {
+    "myteam_audi": {
+      "vtf": {
+        "stock": "2025_asset_groups/f1_2026_vehicle_package/teams/myteam_audi/wep/myteam_audi.erp"
+      },
+      "f1_aero": {
+        "drs": {
+          "angle": -2.792526803190927
+        }
+      }
+    },
+    "myteam_ferrari": {
+      "vtf": {
+        "stock": "2025_asset_groups/f1_2026_vehicle_package/teams/myteam_ferrari/wep/myteam_ferrari.erp"
+      },
+      "f1_aero": {
+        "drs": {
+          "angle": -2.792526803190927
+        }
+      }
+    },
+    "myteam_honda": {
+      "vtf": {
+        "stock": "2025_asset_groups/f1_2026_vehicle_package/teams/myteam_honda/wep/myteam_honda.erp"
+      },
+      "f1_aero": {
+        "drs": {
+          "angle": -2.792526803190927
+        }
+      }
+    },
+    "myteam_mercedes": {
+      "vtf": {
+        "stock": "2025_asset_groups/f1_2026_vehicle_package/teams/myteam_mercedes/wep/myteam_mercedes.erp"
+      },
+      "f1_aero": {
+        "drs": {
+          "angle": -2.792526803190927
+        }
+      }
+    },
+    "myteam_redbull_ford": {
+      "vtf": {
+        "stock": "2025_asset_groups/f1_2026_vehicle_package/teams/myteam_redbull_ford/wep/myteam_redbull_ford.erp"
+      },
+      "f1_aero": {
+        "drs": {
+          "angle": -2.792526803190927
+        }
+      }
+    }
+  }
+}

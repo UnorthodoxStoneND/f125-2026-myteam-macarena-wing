@@ -1,0 +1,27 @@
+{
+  "repository": "Swofty-Developments/SwoftyLauncher",
+  "tag": "v1.10.21",
+  "commit": "70b94d885189e776e899852a4f86dc20067f2b4c",
+  "files": [
+    {
+      "path": "native/third_party/safetyhook/safetyhook.hpp",
+      "target": ".deps/safetyhook/safetyhook.hpp",
+      "sha256": "1f39cb82fbb9f88dc3db6582e6440fd30f4aca5122fd22a2baa993f285fa68f4"
+    },
+    {
+      "path": "native/third_party/safetyhook/safetyhook.cpp",
+      "target": ".deps/safetyhook/safetyhook.cpp",
+      "sha256": "e5c17c8002e07f83070314db21ea508a58e475b044e4c41fe4bf616121f2396b"
+    },
+    {
+      "path": "native/third_party/safetyhook/Zydis.c",
+      "target": ".deps/safetyhook/Zydis.c",
+      "sha256": "ad1d0ecb3935432d1f42504955d5b8740c0e7e091a3fb52bc751addc0d39e36c"
+    },
+    {
+      "path": "native/third_party/safetyhook/Zydis.h",
+      "target": ".deps/safetyhook/Zydis.h",
+      "sha256": "a0b01729ce666949ed267c5d08012e2007a022cf43eb876542df66271e6869ed"
+    }
+  ]
+}

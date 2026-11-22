@@ -1,0 +1,11 @@
+* text=auto eol=lf
+
+*.exe binary
+*.dll binary
+*.swoftyaddon binary
+*.zip binary
+*.png binary
+
+# Retain exact upstream licence notices.
+licenses/*.txt -text -whitespace
+native/SDK-LICENSE.txt -text -whitespace
