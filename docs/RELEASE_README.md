@@ -1,14 +1,14 @@
 # My Team Macarena Wing - Red Bull Style
 
-Version 0.2.2 — by UnorthodoxStoneNDmodding
+Version 1.0.0-test.1 — by UnorthodoxStoneNDmodding
 
 Adds a Red Bull-style Macarena rear-wing animation to 2026 My Team cars, with reverse 160-degree rotation and adjustable visual travel time from 0 to 500 ms. Animation speed can be changed during play without affecting car performance or liveries.
 
-Version 1.0.0 will use Swofty bindings once they are implemented.
+Uses Swofty Launcher’s managed rear-wing render binding.
 
 ## Compatibility
 
-Windows, Steam F1 25 build 26566308, official 2026 season content, Swofty Launcher 1.10.21 or later. The DLL accepts only the exact supported executable and render instructions. EA and other game builds are not supported. All five My Team engine variants are targeted.
+Windows, Steam F1 25 build 26566308, official 2026 season content, Swofty Launcher 1.10.30 or later. The DLL accepts only the exact supported executable and render instructions. EA and other game builds are not supported. All five My Team engine variants are targeted.
 
 ## Install and adjust
 
@@ -23,8 +23,6 @@ Only visual rear-flap travel is adjusted. Simulation opening speed, aerodynamic 
 ## Credits and licenses
 
 - Mod author: UnorthodoxStoneNDmodding.
-- SafetyHook by cursey and contributors: hook library, distributed under the Boost Software License 1.0. See licenses/SafetyHook-Boost.txt and https://github.com/cursey/safetyhook.
-- Zydis by Florian Bernd, Joel Hoener and contributors: instruction decoder used by SafetyHook, distributed under the MIT license. Original copyright names/notices are retained in licenses/Zydis-MIT.txt. See https://github.com/zyantific/zydis.
 - Swofty Pty Ltd: SDK integration and the JSON reader used by live slider synchronization. Required Notice: Copyright Swofty Pty Ltd (ACN 665 787 244). The included JSON reader is covered by licenses/Swofty-PolyForm-Noncommercial.txt. See https://github.com/Swofty-Developments/SwoftyLauncher.
 - The included wing icon is original artwork made for this mod.
 

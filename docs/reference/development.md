@@ -6,7 +6,7 @@ This repository follows the F1 Live Telemetry layout, with native-only build ste
 | --- | --- |
 | `native/` | Native animation, live profile bridge, SDK and actual-DLL host tests |
 | `source/` | Installable-package builder and editable icon source |
-| `tools/checks/` | Pinned dependency preparation and archive validation |
+| `tools/checks/` | SDK pin and archive validation |
 | `docs/guide/` | Installation and settings guidance |
 | `docs/reference/` | Compatibility, development and publishing |
 | `.github/workflows/` | Windows build/test/package CI |
@@ -24,7 +24,7 @@ python source/package.py
 python tools/checks/package_check.py
 ```
 
-`native/build.py` verifies/downloads the pinned SafetyHook/Zydis sources, builds an optimized static-CRT DLL into `bin/` and builds/runs the actual-DLL fixture under `.verify/native/`. No Swofty checkout or user-specific workspace path is required. The vendored SDK and downloaded hook files come from Swofty v1.10.21, commit `70b94d885189e776e899852a4f86dc20067f2b4c`.
+`native/build.py` verifies the vendored SDK pin, builds an optimized static-CRT DLL into `bin/` and builds/runs the actual-DLL fixture under `.verify/native/`. It compiles against Swofty v1.10.30's API v9 header, pinned at commit `64bf599ac6232729707773a2413f51fd1fdd3614`. No dependency download or external hook library is needed. The addon resolves `site_Car_RearWingRenderFraction` and registers a SITE callback plus ON_LOAD notification; Swofty owns installation and chaining. The Steam executable/layout guard validates the named resolved site without a hardcoded address or fallback hook.
 
 CI compiles once with `python native/build.py --build-only`, then runs `python native/build.py --tests-only` against the shared artifacts. The default command does both. No host test launches F1 25 or writes to its installation.
 

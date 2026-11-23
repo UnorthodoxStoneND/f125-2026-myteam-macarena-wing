@@ -3,7 +3,6 @@
 #include <windows.h>
 #include <bcrypt.h>
 #include <swofty_api.h>
-#include <safetyhook.hpp>
 #include "smoothing.hpp"
 #include "live_settings.hpp"
 #include <array>
@@ -13,7 +12,6 @@
 
 namespace {
 const SwoftyApi* api{};
-safetyhook::MidHook hook;
 std::mutex state_mutex;
 std::array<wing::State, wing::slots> states{};
 std::atomic<uint64_t> epoch{1};
@@ -23,7 +21,7 @@ uint32_t event_tokens[2]{};
 uint32_t live_token{};
 wing::LiveSettings live_settings;
 uint64_t last_poll{};
-constexpr uintptr_t site_rva = 0x463c3a4;
+constexpr char binding_name[] = "site_Car_RearWingRenderFraction";
 constexpr unsigned char site_bytes[] = {0x41,0x8b,0x9e,0x48,0x18,0,0,0x41,0x33,0x9e,0x50,0x18,0,0};
 
 template<class T> bool read(uintptr_t p, T& out) {
@@ -38,7 +36,7 @@ double seconds() {
     return double(x.QuadPart) / frequency;
 }
 
-void apply(safetyhook::Context& ctx, double now) {
+void apply(SwoftyContext& ctx, double now) {
     // This site is AFTER all front-wing matrix updates and BEFORE both rear-wing updates.
     // r14 = F1Aero; xmm13.low = rear render fraction; rdi = model owner.
     // Scope to the marker angle supplied ONLY by this add-on's five My Team records.
@@ -63,7 +61,10 @@ void apply(safetyhook::Context& ctx, double now) {
         api->log("[myteam-wing] rear render smoothing active; full travel %.0f ms; physics memory untouched", duration.load()*1000);
 }
 
-void render(safetyhook::Context& ctx) { apply(ctx, seconds()); }
+void render(SwoftyContext* ctx) { if (ctx) apply(*ctx, seconds()); }
+void loaded() {
+    api->log("[myteam-wing] Swofty rear-wing render hook installed; %.0f ms full travel", duration.load()*1000);
+}
 void session_event(const SwoftyEvent*, void*) { epoch.fetch_add(1); }
 void setting(const char*, const SwoftySettingValue* value, void*) {
     if (value && value->type == SWOFTY_SETTING_SLIDER && std::isfinite(value->slider)) {
@@ -110,7 +111,12 @@ void start_live(const std::filesystem::path& startup) {
     api->log("[myteam-wing] live launcher slider unavailable; startup value and in-game watcher retained");
 }
 
-bool verified_image(uintptr_t base) {
+bool supported_site(uintptr_t site) {
+    std::array<unsigned char,sizeof(site_bytes)> bytes{};
+    return read(site,bytes) && !std::memcmp(bytes.data(),site_bytes,sizeof(site_bytes));
+}
+
+bool verified_image(uintptr_t base, uintptr_t site) {
     // Exact Steam build 26566308. Do not try this instruction site on another executable.
     const auto* dos = reinterpret_cast<const IMAGE_DOS_HEADER*>(base);
     if (dos->e_magic != IMAGE_DOS_SIGNATURE) return false;
@@ -140,24 +146,35 @@ bool verified_image(uintptr_t base) {
     CloseHandle(file);
     constexpr unsigned char expected[] = {0x46,0x00,0x9b,0xd3,0x1f,0x49,0xd9,0x3a,0x92,0xd7,0x3c,0xbd,0x0b,0x66,0x13,0x1d,0x2b,0x37,0x96,0x4a,0x92,0xda,0x72,0x93,0x16,0x8d,0x3c,0x3a,0x87,0x2d,0x93,0x89};
     return ok && !std::memcmp(digest, expected, sizeof(digest)) &&
-           !std::memcmp(reinterpret_cast<void*>(base + site_rva), site_bytes, sizeof(site_bytes));
+           supported_site(site);
 }
 }
 
 // Without this export the launcher passes its legacy API v1 table, which this DLL rejects.
 extern "C" __declspec(dllexport) const uint32_t SwoftyAddonApi = SWOFTY_API_VERSION;
 extern "C" __declspec(dllexport) int SwoftyAddonInit(const SwoftyApi* a) {
-    if (!a || a->version < 3 || !a->log) return 0;
+    if (!a || a->version < 3 || !a->log || !a->resolve || !a->register_mixins) return 0;
     api = a;
-    if (!verified_image(reinterpret_cast<uintptr_t>(GetModuleHandleW(nullptr)))) {
-        a->log("[myteam-wing] visual slowdown disabled: unsupported executable or render bytes; no hook installed");
-        return 1;
+    const uintptr_t site=a->resolve(binding_name);
+    if (!site) {
+        a->log("[myteam-wing] required Swofty binding site_Car_RearWingRenderFraction unavailable");
+        return 0;
     }
+#ifndef WING_TEST
+    if (!verified_image(reinterpret_cast<uintptr_t>(GetModuleHandleW(nullptr)),site)) {
+        a->log("[myteam-wing] binding resolved but executable/layout or site bytes are unsupported; not registered");
+        return 0;
+    }
+#else
+    // Host fixture only: bypass the executable identity, but still check the named site's bytes.
+    if (!supported_site(site)) return 0;
+#endif
+    static const SwoftyMixin mixins[]={
+        {binding_name,SWOFTY_MIXIN_SITE,0,reinterpret_cast<void*>(&render),nullptr},
+        {nullptr,SWOFTY_MIXIN_ON_LOAD,0,reinterpret_cast<void*>(&loaded),nullptr}
+    };
+    if (!a->register_mixins(mixins,2)) return 0;
     configure_settings();
-    const auto base = reinterpret_cast<uintptr_t>(GetModuleHandleW(nullptr));
-    auto installed = safetyhook::MidHook::create(reinterpret_cast<void*>(base + site_rva), render);
-    if (!installed) { a->log("[myteam-wing] visual slowdown disabled: render hook installation failed"); return 1; }
-    hook = std::move(*installed);
     if (a->events && a->events->subscribe) {
         a->events->subscribe("session.start", session_event, nullptr, &event_tokens[0]);
         a->events->subscribe("session.unload", session_event, nullptr, &event_tokens[1]);
@@ -165,21 +182,15 @@ extern "C" __declspec(dllexport) int SwoftyAddonInit(const SwoftyApi* a) {
     wchar_t exe[32768]{};
     if (GetModuleFileNameW(nullptr,exe,32768))
         start_live(std::filesystem::path(exe).parent_path()/L"swofty"/L"settings.json");
-    a->log("[myteam-wing] renderer-only slowdown installed for Steam 26566308; %.0f ms full travel", duration.load()*1000);
+    a->log("[myteam-wing] registered Swofty-managed rear-wing render hook for Steam 26566308; %.0f ms full travel", duration.load()*1000);
     return 1;
 }
 
 #ifdef WING_TEST
 // Fixture-only exports. These are absent from the distributed DLL.
-extern "C" __declspec(dllexport) void WingTestApply(safetyhook::Context* ctx, double now) { apply(*ctx, now); }
+extern "C" __declspec(dllexport) void WingTestApply(SwoftyContext* ctx, double now) { apply(*ctx, now); }
 extern "C" __declspec(dllexport) void WingTestReset() { epoch.fetch_add(1); }
 extern "C" __declspec(dllexport) void WingTestDuration(double ms) { SwoftySettingValue v{}; v.type=2; v.slider=ms; setting(nullptr,&v,nullptr); }
 extern "C" __declspec(dllexport) void WingTestConfigureSettings(const SwoftyApi* a) { api=a; configure_settings(); }
 extern "C" __declspec(dllexport) void WingTestLiveSettings(const wchar_t* startup) { last_poll=0;start_live(startup); }
-extern "C" __declspec(dllexport) int WingTestHook(uintptr_t site) {
-    auto installed=safetyhook::MidHook::create(reinterpret_cast<void*>(site),render);
-    if (!installed) return 0;
-    hook=std::move(*installed); return 1;
-}
-extern "C" __declspec(dllexport) void WingTestUnhook() { hook.reset(); }
 #endif

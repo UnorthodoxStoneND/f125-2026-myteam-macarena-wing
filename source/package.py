@@ -22,8 +22,6 @@ contents={
  'CHANGELOG.md':(ROOT/'CHANGELOG.md','release history'),
  'LICENSE':(ROOT/'LICENSE','original-code licence'),
  'THIRD_PARTY_NOTICES.md':(ROOT/'THIRD_PARTY_NOTICES.md','third-party licence scope and attribution'),
- 'licenses/SafetyHook-Boost.txt':(ROOT/'licenses/SafetyHook-Boost.txt','required bundled-library licence'),
- 'licenses/Zydis-MIT.txt':(ROOT/'licenses/Zydis-MIT.txt','required bundled-library licence'),
  'licenses/Swofty-PolyForm-Noncommercial.txt':(ROOT/'licenses/Swofty-PolyForm-Noncommercial.txt','vendored JSON reader licence'),
  'licenses/Swofty-SDK-MIT.txt':(ROOT/'native/SDK-LICENSE.txt','Swofty SDK licence'),
 }
@@ -31,7 +29,7 @@ name='MyTeam-Macarena-RedBull-Style-'+manifest['version']
 archive=args.output/(name+'.zip')
 with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:
     for rel,(src,_) in sorted(contents.items()):
-        info=zipfile.ZipInfo(rel,(2026,11,22,0,0,0));info.compress_type=zipfile.ZIP_DEFLATED;info.external_attr=0o644<<16
+        info=zipfile.ZipInfo(rel,(2026,11,23,0,0,0));info.compress_type=zipfile.ZIP_DEFLATED;info.external_attr=0o644<<16
         z.writestr(info,src.read_bytes())
 # Retire only the old generated format in this output folder; historical releases stay untouched.
 for old in [args.output/(name+'.swoftyaddon'),args.output/(name+'.swoftyaddon.sha256')]:

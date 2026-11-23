@@ -6,10 +6,8 @@ The repository's MIT licence applies to original mod code by UnorthodoxStoneNDmo
 | --- | --- | --- |
 | Swofty native SDK | `native/sdk/swofty_api.h` | MIT, copyright 2026 Jacob Nardella (Swofty); `native/SDK-LICENSE.txt` |
 | Swofty JSON reader | `native/vendor/swofty-json.hpp`, compiled into the live-setting bridge | PolyForm Noncommercial 1.0.0; Required Notice: Copyright Swofty Pty Ltd (ACN 665 787 244); `licenses/Swofty-PolyForm-Noncommercial.txt` |
-| SafetyHook | Hook library downloaded into `.deps/safetyhook` and compiled into the DLL | Boost Software License 1.0; `licenses/SafetyHook-Boost.txt` |
-| Zydis | Instruction decoder used by SafetyHook | MIT; copyright Florian Bernd and Joel Höner; `licenses/Zydis-MIT.txt` |
 
-Upstream source: https://github.com/Swofty-Developments/SwoftyLauncher. The hook dependency lock pins the source commit and SHA-256 for every downloaded file in `tools/checks/dependencies.json`. SafetyHook originates at https://github.com/cursey/safetyhook and Zydis at https://github.com/zyantific/zydis.
+Upstream source: https://github.com/Swofty-Developments/SwoftyLauncher. The vendored SDK is pinned to v1.10.30 (commit `64bf599ac6232729707773a2413f51fd1fdd3614`); file identities are recorded in `native/SDK_VERSION.json`. The launcher owns installation and chaining of the named site callback.
 
 The square PNG icon and its editable SVG are original mod artwork. No game executable, archives, database, livery images or team logos are distributed. Dependency caches, tools, SDK headers and tests are excluded from installable packages; applicable licence notices remain included.
 

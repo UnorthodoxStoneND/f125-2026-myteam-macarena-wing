@@ -1,3 +1,11 @@
+# 1.0.0-test.1
+
+- Use Swofty's `site_Car_RearWingRenderFraction` managed site binding, available in the tested Swofty 1.10.30 installation.
+- Remove the custom hook and bundled SafetyHook/Zydis build dependencies.
+- Retain live 0–500 ms adjustment, default 250 ms, zero smoothing bypass and existing profile preferences.
+- Keep the existing addon ID, wing-angle edits, livery and car performance behavior.
+- Test candidate: managed-hook in-game confirmation pending.
+
 # 0.2.2
 
 - PNG launcher icon and updated README.

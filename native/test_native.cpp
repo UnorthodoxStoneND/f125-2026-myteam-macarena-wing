@@ -2,11 +2,12 @@
 #define NOMINMAX
 #include <windows.h>
 #include <swofty_api.h>
-#include <safetyhook.hpp>
 #include "smoothing.hpp"
 #include <array>
 #include <cassert>
 #include <cstdio>
+#include <cstdarg>
+#include <string>
 #include <cstring>
 #include <vector>
 #include <filesystem>
@@ -25,13 +26,30 @@ struct Car {
         uint32_t bits{};const float angle=wing::marker_angle;std::memcpy(&bits,&angle,4);
         put(aero,0x1848,bits^0x12345678u); put(aero,0x1850,0x12345678u);put(model,0x1300,int32_t(2));
     }
-    safetyhook::Context context(float fraction) {
-        safetyhook::Context c;std::memset(&c,0x37,sizeof(c));
+    SwoftyContext context(float fraction) {
+        SwoftyContext c;std::memset(&c,0x37,sizeof(c));
         c.r14=reinterpret_cast<uintptr_t>(aero.data());c.rdi=reinterpret_cast<uintptr_t>(model.data());
         c.xmm13.f32[0]=fraction;return c;
     }
 };
-void log(const char*,...) {}
+std::string log_text;
+void log(const char* format,...) {
+    char text[1024]{};va_list args;va_start(args,format);vsnprintf(text,sizeof(text),format,args);va_end(args);
+    log_text+=text;log_text+='\n';
+}
+unsigned char binding_bytes[]={0x41,0x8b,0x9e,0x48,0x18,0,0,0x41,0x33,0x9e,0x50,0x18,0,0};
+uintptr_t resolved_site{};
+bool accept_mixins=true;
+unsigned registrations=0;
+std::vector<SwoftyMixin> mixins;
+uintptr_t resolve(const char* name) {
+    assert(!std::strcmp(name,"site_Car_RearWingRenderFraction"));return resolved_site;
+}
+int register_mixins(const SwoftyMixin* entries,size_t count) {
+    ++registrations;
+    if (!accept_mixins) return 0;
+    mixins.assign(entries,entries+count);return 1;
+}
 SwoftySettingFn watcher{};
 void* watcher_user{};
 int initial_setting(const char* id,uint32_t type,SwoftySettingValue* out) {
@@ -50,7 +68,7 @@ int on_frame(SwoftyFrameFn fn,void* user,uint32_t* token) {
 int main(int argc,char** argv) {
     assert(argc==3);
     HMODULE dll=LoadLibraryA(argv[1]);assert(dll);
-    auto apply=symbol<void(*)(safetyhook::Context*,double)>(dll,"WingTestApply");
+    auto apply=symbol<void(*)(SwoftyContext*,double)>(dll,"WingTestApply");
     auto reset=symbol<void(*)()>(dll,"WingTestReset");
     auto duration=symbol<void(*)(double)>(dll,"WingTestDuration");
     Car a(0),b(1);
@@ -142,24 +160,32 @@ int main(int argc,char** argv) {
     auto bad=a.context(1);bad.r14=1;apply(&bad,4.1);approx(bad.xmm13.f32[0],1);
     assert(a.physics==physics && a.aero==aero && a.model==model);
 
-    // Exercise the actual SafetyHook register handoff with a synthetic model-update instruction site.
-    const unsigned char code[]={0x57,0x41,0x56,0x53,0x48,0x83,0xec,0x20,
-        0xc5,0x78,0x29,0x2c,0x24,0x48,0x89,0xcf,0x49,0x89,0xd6,0xc5,0x78,0x28,0xea,
-        0x41,0x8b,0x9e,0x48,0x18,0,0,0x41,0x33,0x9e,0x50,0x18,0,0,
-        0xf3,0x41,0x0f,0x10,0xc5,0xc5,0x78,0x28,0x2c,0x24,0x48,0x83,0xc4,0x20,0x5b,0x41,0x5e,0x5f,0xc3};
-    auto memory=static_cast<unsigned char*>(VirtualAlloc(nullptr,4096,MEM_COMMIT|MEM_RESERVE,PAGE_EXECUTE_READWRITE));assert(memory);
-    std::memcpy(memory,code,sizeof(code));FlushInstructionCache(GetCurrentProcess(),memory,sizeof(code));
-    using Fn=float(*)(void*,void*,float);auto fn=reinterpret_cast<Fn>(memory);
-    approx(fn(a.model.data(),a.aero.data(),1),1);
-    auto install=symbol<int(*)(uintptr_t)>(dll,"WingTestHook");auto unhook=symbol<void(*)()>(dll,"WingTestUnhook");
-    reset();assert(install(reinterpret_cast<uintptr_t>(memory+23)));
-    approx(fn(a.model.data(),a.aero.data(),0),0);
-    Sleep(60);
-    const float rendered=fn(a.model.data(),a.aero.data(),1);
-    assert(rendered>0.05f && rendered<0.9f);
-    assert(a.physics==physics && a.aero==aero && a.model==model);
-    unhook();approx(fn(a.model.data(),a.aero.data(),1),1);
-    assert(!std::memcmp(memory,code,sizeof(code)));VirtualFree(memory,0,MEM_RELEASE);
+    // Exercise the real DLL's named-binding registration and the callback core dispatches.
+    auto init=symbol<int(*)(const SwoftyApi*)>(dll,"SwoftyAddonInit");
+    SwoftyApi core=settings_api;core.resolve=resolve;core.register_mixins=register_mixins;
+    resolved_site=0;registrations=0;assert(init(&core)==0 && registrations==0);
+    assert(log_text.find("required Swofty binding")!=std::string::npos);
+    auto missing=core;missing.register_mixins=nullptr;assert(init(&missing)==0);
+    missing=core;missing.resolve=nullptr;assert(init(&missing)==0);
+    missing=core;missing.version=2;assert(init(&missing)==0);
+    resolved_site=1;assert(init(&core)==0 && registrations==0);
+    resolved_site=reinterpret_cast<uintptr_t>(binding_bytes);
+    binding_bytes[0]=0;assert(init(&core)==0 && registrations==0);binding_bytes[0]=0x41;
+    accept_mixins=false;assert(init(&core)==0 && registrations==1 && mixins.empty());
+    accept_mixins=true;registrations=0;assert(init(&core)==1 && registrations==1 && mixins.size()==2);
+    assert(!std::strcmp(mixins[0].target,"site_Car_RearWingRenderFraction"));
+    assert(mixins[0].kind==SWOFTY_MIXIN_SITE && mixins[0].priority==0 && !mixins[0].orig);
+    assert(mixins[1].kind==SWOFTY_MIXIN_ON_LOAD && !mixins[1].target && !mixins[1].orig);
+    reinterpret_cast<void(*)()>(mixins[1].handler)();
+    assert(log_text.find("Swofty rear-wing render hook installed")!=std::string::npos);
+    auto site_callback=reinterpret_cast<void(*)(SwoftyContext*)>(mixins[0].handler);
+    std::vector<unsigned char> site_before(std::begin(binding_bytes),std::end(binding_bytes));
+    reset();auto context=a.context(0);site_callback(&context);approx(context.xmm13.f32[0],0);
+    Sleep(60);context=a.context(1);auto expected=context;site_callback(&context);
+    assert(context.xmm13.f32[0]>0.01f && context.xmm13.f32[0]<0.9f);
+    expected.xmm13.f32[0]=context.xmm13.f32[0];assert(!std::memcmp(&context,&expected,sizeof(context)));
+    assert(!std::memcmp(binding_bytes,site_before.data(),site_before.size()));
+    assert(a.physics==physics && a.aero==aero && a.model==model);site_callback(nullptr);
     FreeLibrary(dll);
 
     HMODULE release=LoadLibraryA(argv[2]);assert(release);
@@ -168,7 +194,13 @@ int main(int argc,char** argv) {
     assert(!GetProcAddress(release,"WingTestLiveSettings"));
     assert(!GetProcAddress(release,"WingTestHook"));assert(!GetProcAddress(release,"WingTestApply"));
     SwoftyApi api{};api.version=SWOFTY_API_VERSION;api.log=log;
-    assert(symbol<int(*)(const SwoftyApi*)>(release,"SwoftyAddonInit")(&api)==1); // Unsupported host image: no hook.
+    auto release_init=symbol<int(*)(const SwoftyApi*)>(release,"SwoftyAddonInit");
+    assert(release_init(&api)==0); // Required API absent.
+    api.resolve=resolve;api.register_mixins=register_mixins;
+    resolved_site=0;registrations=0;assert(release_init(&api)==0 && registrations==0);
+    resolved_site=reinterpret_cast<uintptr_t>(binding_bytes);
+    assert(release_init(&api)==0 && registrations==0); // Real release refuses unsupported host image.
+    assert(!GetProcAddress(release,"WingTestUnhook"));
     FreeLibrary(release);
-    std::puts("PASS: release/fixture API v9; saved and watched settings; launcher-style atomic profile saves reach rendering through actual on_frame callback at 0/50/150/500 ms; fresh default and reset 250 ms, zero-duration bypass without division, zero paused dt, Unicode path, malformed/type/range/grid rejection and recovery, pinned profile, reset-to-default and read-only files; 450 ms opening/closing, independent cars, duplicate passes, session reset, gaps, non-marker/invalid-pointer bypass; only xmm13.low changes, simulation/model buffers unchanged; real mid-hook/rollback; release has no fixture bypass and refuses unsupported host.");
+    std::puts("PASS: release/fixture API v9; saved and watched settings; launcher-style atomic profile saves reach rendering through actual on_frame callback at 0/50/150/500 ms; fresh default and reset 250 ms, zero-duration bypass without division, zero paused dt, Unicode path, malformed/type/range/grid rejection and recovery, pinned profile, reset-to-default and read-only files; 450 ms opening/closing, independent cars, duplicate passes, session reset, gaps, non-marker/invalid-pointer bypass; only xmm13.low changes, simulation/model buffers unchanged; named site registration/ON_LOAD dispatch, missing API/binding/bytes and registration rejection, no instruction writes; release has no fixture bypass and refuses unsupported host.");
 }

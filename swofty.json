@@ -2,9 +2,9 @@
   "schema_version": 1,
   "id": "unorthodoxstonendmodding.myteam-macarena-wing",
   "name": "My Team Macarena Wing - Red Bull Style",
-  "version": "0.2.2",
+  "version": "1.0.0-test.1",
   "author": "UnorthodoxStoneNDmodding",
-  "description": "Adds a Red Bull-style Macarena rear-wing animation to 2026 My Team cars, with reverse 160-degree rotation and adjustable visual travel time from 0 to 500 ms. Animation speed can be changed during play without affecting car performance or liveries. Version 1.0.0 will use Swofty bindings once they are implemented.",
+  "description": "Adds a Red Bull-style Macarena rear-wing animation to 2026 My Team cars, with reverse 160-degree rotation and adjustable visual travel time from 0 to 500 ms. Animation speed can be changed during play without affecting car performance or liveries. Uses Swofty Launcher bindings for the rear-wing animation.",
   "license": "MIT",
   "repository": "https://github.com/UnorthodoxStoneND/f125-2026-myteam-macarena-wing",
   "icon": "icon.png",
@@ -19,7 +19,7 @@
     "game_builds": [
       "=26566308"
     ],
-    "launcher": ">=1.10.21",
+    "launcher": ">=1.10.30",
     "seasons": [
       "f1_2026"
     ],

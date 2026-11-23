@@ -2,11 +2,11 @@
 
 | Check | Evidence |
 | --- | --- |
-| Pinned build dependencies | SHA-256-verified sources from the locked upstream commit |
+| Pinned SDK | Vendored API header/licence verified against native/SDK_VERSION.json |
 | Native animation/settings | Actual compiled DLL and frame callbacks, valid/invalid saved settings, range/default and zero endpoint |
-| Hook/register contract | Real mid-hook handoff/rollback; simulation buffers and unrelated register bits preserved |
+| Hook/register contract | Named SITE/ON_LOAD registration, mock-core callback dispatch, missing-binding/registration rejection; simulation buffers and unrelated register bits preserved |
 | Release ABI | API-version declaration present; fixture-only bypass exports absent; unsupported host rejected |
-| Package contents | Exact allowlist, manifest references, valid PNG, compiled DLL and required notices |
+| Package contents | Exact allowlist, manifest references, valid PNG, managed DLL, required notices and absence of bundled hook/decoder code |
 | Versions and hashes | Matching manifest/versioned artifact names, ZIP-only output and SHA-256 sums |
 | Package privacy | No source/build files or personal Windows paths in release text |
 
