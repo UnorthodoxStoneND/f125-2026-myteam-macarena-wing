@@ -1,6 +1,6 @@
 # My Team Macarena Wing [Swofty Add-On]
 
-Red Bull-style reverse 160-degree rear-wing animation for 2026 My Team cars in F1 25. Version **1.0.0-test.1**, by **UnorthodoxStoneNDmodding**.
+Red Bull-style reverse 160-degree rear-wing animation for 2026 My Team cars in F1 25. Version **1.0.0**, by **UnorthodoxStoneNDmodding**.
 
 ## Features
 

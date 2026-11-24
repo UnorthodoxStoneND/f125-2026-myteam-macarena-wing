@@ -61,8 +61,12 @@ int watch_setting(const char* id,SwoftySettingFn fn,void* user) {
 }
 SwoftyFrameFn frame_callback{};
 void* frame_user{};
+int frame_result=SWOFTY_ASSET_OK;
 int on_frame(SwoftyFrameFn fn,void* user,uint32_t* token) {
-    frame_callback=fn;frame_user=user;*token=7;return 1;
+    if (frame_result == SWOFTY_ASSET_OK) {
+        frame_callback=fn;frame_user=user;*token=7;
+    }
+    return frame_result;
 }
 
 int main(int argc,char** argv) {
@@ -112,7 +116,10 @@ int main(int argc,char** argv) {
                   std::string(reinterpret_cast<const char*>(request.data()),request.size())+"\"}");
     SwoftyEvents events{};events.on_frame=on_frame;settings_api.events=&events;
     duration(450);
-    symbol<void(*)(const wchar_t*)>(dll,"WingTestLiveSettings")(startup.c_str());assert(frame_callback);
+    const auto start_live=symbol<void(*)(const wchar_t*)>(dll,"WingTestLiveSettings");
+    const auto live_log_start=log_text.size();
+    start_live(startup.c_str());assert(frame_callback);
+    assert(log_text.find("live launcher slider enabled",live_log_start)!=std::string::npos);
     auto poll=[&] {Sleep(260);frame_callback(0,frame_user);}; // Paused game dt must still poll.
     auto timing=[&](float expected) {reset();approx(run(a,0,0),0);approx(run(a,1,0.1),expected);};
     write(profile,profile_text("500"));poll();timing(0.2f);
@@ -136,6 +143,12 @@ int main(int argc,char** argv) {
     write(profile,profile_text("1000")); // An old saved setting can exceed the new range.
     symbol<void(*)(const wchar_t*)>(dll,"WingTestLiveSettings")(startup.c_str());
     write(profile,profile_text("500"));poll();timing(0.2f); // First valid edit must apply, even after invalid startup data.
+    frame_result=SWOFTY_ASSET_UNAVAILABLE;
+    frame_callback=nullptr;
+    const auto unavailable_log_start=log_text.size();
+    start_live(startup.c_str());
+    assert(!frame_callback && log_text.find("live launcher slider unavailable",unavailable_log_start)!=std::string::npos);
+    frame_result=SWOFTY_ASSET_OK;
     duration(450);reset();
     approx(run(a,0,1),0);
     approx(run(a,1,1.1),1.0f/4.5f);

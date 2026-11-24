@@ -1,6 +1,6 @@
 # My Team Macarena Wing - Red Bull Style
 
-Version 1.0.0-test.1 — by UnorthodoxStoneNDmodding
+Version 1.0.0 — by UnorthodoxStoneNDmodding
 
 Adds a Red Bull-style Macarena rear-wing animation to 2026 My Team cars, with reverse 160-degree rotation and adjustable visual travel time from 0 to 500 ms. Animation speed can be changed during play without affecting car performance or liveries.
 

@@ -101,7 +101,7 @@ void live_frame(double,void*) {
 void start_live(const std::filesystem::path& startup) {
     try {
         if (live_settings.start(startup) && api->events && api->events->on_frame &&
-            api->events->on_frame(live_frame,nullptr,&live_token)) {
+            api->events->on_frame(live_frame,nullptr,&live_token) == SWOFTY_ASSET_OK) {
             api->log("[myteam-wing] live launcher slider enabled; session profile checked every 250 ms");
             return;
         }
