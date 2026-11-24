@@ -11,6 +11,6 @@ The workflow builds artifacts for review; it does not publish releases or upload
 
 The runtime package allowlist is in `source/package.py`. Every entry must be the manifest, a referenced feature file, or required release documentation/licence notice. `tools/checks/package_check.py` rejects extra source/build content and verifies references and hashes.
 
-For any Addon Browser submission, check the current launcher-bindings requirements and supported launcher exports as well as manifest, icon, platform, ownership and testing requirements. GitHub publication does not itself establish Browser eligibility. Version 1.0.0 will use Swofty bindings once they are implemented.
+For any Addon Browser submission, check the current launcher-bindings requirements and supported launcher exports as well as manifest, icon, platform, ownership and testing requirements. GitHub publication does not itself establish Browser eligibility. Version 1.0.0 uses the launcher-provided rear-wing binding.
 
 References: https://f1.swofty.net/reference/addons/publishing.html and https://f1.swofty.net/reference/addons/manifest.html.

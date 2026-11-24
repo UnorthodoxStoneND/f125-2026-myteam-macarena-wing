@@ -13,6 +13,10 @@ with zipfile.ZipFile(archive) as z:
     assert json.loads(z.read('swofty.json'))==manifest
     assert all(not n.endswith(('.cpp','.hpp','.h','.obj','.pdb','.py','.exe','.svg')) for n in z.namelist())
     assert z.read('native/myteam-wing-animation.dll')==(ROOT/'bin/myteam-wing-animation.dll').read_bytes()
+    dll=z.read('native/myteam-wing-animation.dll')
+    assert b'site_Car_RearWingRenderFraction' in dll
+    assert b'safetyhook' not in dll.lower() and b'zydis' not in dll.lower()
+    assert 'licenses/SafetyHook-Boost.txt' not in z.namelist() and 'licenses/Zydis-MIT.txt' not in z.namelist()
     for entry in manifest['operations']['native']:assert entry['dll'] in z.namelist()
     png=z.read(manifest['icon']);assert png[:8]==b'\x89PNG\r\n\x1a\n' and struct.unpack('>II',png[16:24])==(512,512)
     for name in z.namelist():
